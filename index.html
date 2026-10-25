@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173d35">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Optimum CRM">
+<link rel="manifest" href="manifest.json">
+<title>Optimum CRM</title>
+<style>
+:root{--green:#173d35;--bg:#f4f6f5;--card:#fff;--line:#dfe5e2;--text:#17221f;--muted:#66736e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
+header{background:var(--green);color:#fff;padding:22px 18px 18px}header h1{font-size:24px;margin:0 0 5px}header p{margin:0;font-size:13px;opacity:.85}
+main{max-width:760px;margin:auto;padding:14px 12px 90px}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+button,.tab{border:0;border-radius:12px;padding:12px 8px;font-size:14px;font-weight:600;cursor:pointer}
+.tab{background:#e4eae7;color:var(--green)}.tab.active{background:var(--green);color:white}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:12px}
+h2{font-size:19px;margin:0 0 12px}label{display:block;font-size:13px;color:var(--muted);margin:10px 0 5px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cfd8d3;border-radius:10px;background:#fff;font:16px inherit;color:var(--text)}
+textarea{min-height:82px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary{background:var(--green);color:#fff;width:100%;margin-top:12px}.secondary{background:#e5ece8;color:var(--green)}.danger{background:#fbe8e6;color:#9a3028}
+.item{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:9px;background:white}.item strong{display:block;margin-bottom:4px}.muted{color:var(--muted);font-size:13px}.actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.actions button{padding:9px 11px}.hidden{display:none!important}.notice{font-size:13px;color:var(--muted);line-height:1.45}.empty{padding:20px;text-align:center;color:var(--muted)}.pill{display:inline-block;background:#e7efeb;color:#234e42;border-radius:30px;padding:4px 8px;font-size:12px;margin:3px 3px 0 0}
+@media(max-width:420px){.grid{grid-template-columns:1fr}.tabs{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><h1>Optimum CRM</h1><p>Kişisel satış ve müşteri takip uygulaması</p></header>
+<main>
+<div class="tabs">
+<button class="tab active" data-page="customers">Müşteriler</button>
+<button class="tab" data-page="activity">Görüşme ekle</button>
+<button class="tab" data-page="reminders">Hatırlatmalar</button>
+<button class="tab" data-page="backup">Yedekleme</button>
+</div>
+
+<section id="customers" class="page">
+<div class="card">
+<h2>Yeni müşteri kaydı</h2>
+<form id="customerForm">
+<label>Firma adı *</label><input name="name" required placeholder="Örn. ABC Tekstil">
+<div class="grid"><div><label>İl</label><input name="city" placeholder="Gaziantep"></div><div><label>Sektör</label><input name="sector" placeholder="Halı / Tekstil"></div></div>
+<div class="grid"><div><label>İlgili kişi</label><input name="person" placeholder="Ad soyad"></div><div><label>Telefon</label><input name="phone" type="tel" placeholder="05xx xxx xx xx"></div></div>
+<label>E-posta</label><input name="email" type="email" placeholder="ornek@firma.com">
+<label>Açık adres</label><textarea name="address" placeholder="Firma adresi"></textarea>
+<label>İlk not</label><textarea name="note" placeholder="Firma hakkında kısa bilgi"></textarea>
+<button class="primary" type="submit">Müşteriyi kaydet</button>
+</form>
+</div>
+<div class="card"><h2>Müşteri listesi</h2>
+<input id="search" placeholder="Firma adı, il veya sektör ara…">
+<div class="grid"><div><label>İle göre filtrele</label><select id="cityFilter"><option value="">Tüm iller</option></select></div><div><label>Sektöre göre filtrele</label><select id="sectorFilter"><option value="">Tüm sektörler</option></select></div></div>
+<div id="customerList"></div></div>
+</section>
+
+<section id="activity" class="page hidden">
+<div class="card"><h2>Ziyaret / telefon görüşmesi kaydı</h2>
+<form id="activityForm">
+<label>Müşteri *</label><select name="customerId" id="activityCustomer" required><option value="">Müşteri seç</option></select>
+<div class="grid"><div><label>Görüşme türü</label><select name="type"><option>Ziyaret</option><option>Telefon</option><option>E-posta</option><option>Teklif</option><option>Diğer</option></select></div><div><label>Tarih ve saat</label><input name="date" type="datetime-local" required></div></div>
+<label>Görüşme notu *</label><textarea name="note" required placeholder="Ne konuşuldu, sonuç ne oldu?"></textarea>
+<label>Sonraki yapılacak iş</label><input name="next" placeholder="Örn. fiyat teklifini gönder">
+<button class="primary" type="submit">Görüşmeyi kaydet</button></form></div>
+<div class="card"><h2>Son görüşmeler</h2><div id="activityList"></div></div>
+</section>
+
+<section id="reminders" class="page hidden">
+<div class="card"><h2>Yeni hatırlatma</h2>
+<form id="reminderForm">
+<label>Müşteri</label><select name="customerId" id="reminderCustomer"><option value="">Müşteri seç (isteğe bağlı)</option></select>
+<label>Hatırlatma konusu *</label><input name="title" required placeholder="Örn. Ahmet Bey'i ara">
+<div class="grid"><div><label>Tarih ve saat</label><input name="date" type="datetime-local" required></div><div><label>Durum</label><select name="status"><option>Bekliyor</option><option>Tamamlandı</option></select></div></div>
+<button class="primary" type="submit">Hatırlatmayı kaydet</button></form>
+<p class="notice">Bu ilk taslakta hatırlatmalar uygulama içinde görünür. Telefonun kilit ekranına otomatik bildirim için sonraki kurulum adımı gerekir.</p></div>
+<div class="card"><h2>Hatırlatma listesi</h2><div id="reminderList"></div></div>
+</section>
+
+<section id="backup" class="page hidden">
+<div class="card"><h2>Veri yedekleme</h2>
+<p class="notice"><strong>Önemli:</strong> Bu başlangıç sürümü kayıtları bu tarayıcıda saklar. Henüz iCloud otomatik eşitlemesi yoktur. Gerçek müşteri bilgilerini girmeden önce bulut veritabanı ve yeni telefona aktarım aşamasını tamamlamak gerekir.</p>
+<button id="exportBtn" class="primary">Yedek dosyası indir</button>
+<label>Yedek dosyasından geri yükle</label><input id="importFile" type="file" accept=".json,application/json">
+<button id="importBtn" class="secondary" style="width:100%;margin-top:10px">Yedeği geri yükle</button>
+<button id="clearBtn" class="danger" style="width:100%;margin-top:10px">Bu telefondaki test kayıtlarını sil</button>
+</div>
+</section>
+</main>
+<script>
+const KEY='optimumCRM_v1';
+let db=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{customers:[],activities:[],reminders:[]}}catch(e){return {customers:[],activities:[],reminders:[]}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmt(s){if(!s)return '';let d=new Date(s);return isNaN(d)?s:d.toLocaleString('tr-TR')}
+function customerName(cid){return db.customers.find(c=>c.id===cid)?.name||'Silinmiş müşteri'}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('hidden',p.id!==b.dataset.page));render()}));
+function formObj(form){return Object.fromEntries(new FormData(form).entries())}
+document.getElementById('customerForm').addEventListener('submit',e=>{e.preventDefault();let x=formObj(e.target);db.customers.push({id:id(),...x,created:new Date().toISOString()});e.target.reset();save();alert('Müşteri kaydedildi.')});
+document.getElementById('activityForm').addEventListener('submit',e=>{e.preventDefault();let x=formObj(e.target);db.activities.unshift({id:id(),...x});e.target.reset();save();alert('Görüşme kaydedildi.')});
+document.getElementById('reminderForm').addEventListener('submit',e=>{e.preventDefault();let x=formObj(e.target);db.reminders.push({id:id(),...x});e.target.reset();save();alert('Hatırlatma kaydedildi.')});
+['search','cityFilter','sectorFilter'].forEach(k=>document.getElementById(k).addEventListener('input',render));
+function render(){
+ const cities=[...new Set(db.customers.map(c=>c.city).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'tr'));
+ const sectors=[...new Set(db.customers.map(c=>c.sector).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'tr'));
+ const cf=document.getElementById('cityFilter'),sf=document.getElementById('sectorFilter');
+ const oldc=cf.value, olds=sf.value;
+ cf.innerHTML='<option value="">Tüm iller</option>'+cities.map(x=>`<option>${esc(x)}</option>`).join('');
+ sf.innerHTML='<option value="">Tüm sektörler</option>'+sectors.map(x=>`<option>${esc(x)}</option>`).join('');
+ cf.value=cities.includes(oldc)?oldc:'';sf.value=sectors.includes(olds)?olds:'';
+ const q=document.getElementById('search').value.toLocaleLowerCase('tr');
+ const customers=db.customers.filter(c=>(!q||[c.name,c.city,c.sector,c.person,c.phone,c.email].join(' ').toLocaleLowerCase('tr').includes(q))&&(!cf.value||c.city===cf.value)&&(!sf.value||c.sector===sf.value)).sort((a,b)=>a.name.localeCompare(b.name,'tr'));
+ document.getElementById('customerList').innerHTML=customers.length?customers.map(c=>`<div class="item"><strong>${esc(c.name)}</strong><div>${c.city?`<span class="pill">${esc(c.city)}</span>`:''}${c.sector?`<span class="pill">${esc(c.sector)}</span>`:''}</div><p class="muted">${esc(c.person||'')} ${c.phone?' · '+esc(c.phone):''}${c.email?' · '+esc(c.email):''}</p>${c.address?`<p class="muted">${esc(c.address)}</p>`:''}${c.note?`<p>${esc(c.note)}</p>`:''}<div class="actions"><button class="secondary" onclick="showHistory('${c.id}')">Geçmişi gör</button><button class="danger" onclick="deleteCustomer('${c.id}')">Sil</button></div></div>`).join(''):'<div class="empty">Henüz müşteri yok. İlk kaydını yukarıdan ekleyebilirsin.</div>';
+ const opts='<option value="">Müşteri seç</option>'+db.customers.slice().sort((a,b)=>a.name.localeCompare(b.name,'tr')).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+ document.getElementById('activityCustomer').innerHTML=opts;document.getElementById('reminderCustomer').innerHTML='<option value="">Müşteri seç (isteğe bağlı)</option>'+opts.replace('<option value="">Müşteri seç</option>','');
+ document.getElementById('activityList').innerHTML=db.activities.length?db.activities.map(a=>`<div class="item"><strong>${esc(customerName(a.customerId))} · ${esc(a.type)}</strong><div class="muted">${esc(fmt(a.date))}</div><p>${esc(a.note)}</p>${a.next?`<p class="muted">Sonraki iş: ${esc(a.next)}</p>`:''}<div class="actions"><button class="danger" onclick="deleteRecord('activities','${a.id}')">Sil</button></div></div>`).join(''):'<div class="empty">Henüz görüşme kaydı yok.</div>';
+ document.getElementById('reminderList').innerHTML=db.reminders.slice().sort((a,b)=>new Date(a.date)-new Date(b.date)).map(r=>`<div class="item"><strong>${esc(r.title)}</strong><div>${r.customerId?esc(customerName(r.customerId))+' · ':''}${esc(fmt(r.date))}</div><span class="pill">${esc(r.status||'Bekliyor')}</span><div class="actions"><button class="secondary" onclick="toggleReminder('${r.id}')">${r.status==='Tamamlandı'?'Bekliyor yap':'Tamamlandı yap'}</button><button class="danger" onclick="deleteRecord('reminders','${r.id}')">Sil</button></div></div>`).join('')||'<div class="empty">Henüz hatırlatma yok.</div>';
+}
+window.deleteCustomer=function(cid){if(!confirm('Bu müşteri silinsin mi? Görüşme ve hatırlatma kayıtları kalabilir.'))return;db.customers=db.customers.filter(c=>c.id!==cid);save()};
+window.deleteRecord=function(type,rid){if(confirm('Bu kayıt silinsin mi?')){db[type]=db[type].filter(x=>x.id!==rid);save()}};
+window.toggleReminder=function(rid){let r=db.reminders.find(x=>x.id===rid);if(r){r.status=r.status==='Tamamlandı'?'Bekliyor':'Tamamlandı';save()}};
+window.showHistory=function(cid){let c=db.customers.find(x=>x.id===cid);let a=db.activities.filter(x=>x.customerId===cid);let r=db.reminders.filter(x=>x.customerId===cid);alert(c.name+'\\n\\nGörüşmeler: '+a.length+'\\nHatırlatmalar: '+r.length+'\\n\\nGörüşme kayıtlarını “Görüşme ekle” bölümünde görebilirsin.')};
+document.getElementById('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({...db,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Optimum-CRM-yedek-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)});
+document.getElementById('importBtn').addEventListener('click',()=>{const f=document.getElementById('importFile').files[0];if(!f){alert('Önce yedek JSON dosyasını seç.');return}const reader=new FileReader();reader.onload=()=>{try{const x=JSON.parse(reader.result);if(!Array.isArray(x.customers)||!Array.isArray(x.activities)||!Array.isArray(x.reminders))throw 0;if(!confirm('Mevcut kayıtların yerine yedek dosyasındaki kayıtlar yüklensin mi?'))return;db={customers:x.customers,activities:x.activities,reminders:x.reminders};save();alert('Yedek geri yüklendi.')}catch(e){alert('Bu dosya geçerli bir Optimum CRM yedeği değil.')}};reader.readAsText(f)});
+document.getElementById('clearBtn').addEventListener('click',()=>{if(confirm('Bu işlem bu tarayıcıdaki bütün kayıtları siler. Emin misin?')){db={customers:[],activities:[],reminders:[]};save()}});
+document.querySelectorAll('input[name="date"]').forEach(el=>{if(el.type==='datetime-local')el.value=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16)});
+render();
+</script>
+</body>
+</html>

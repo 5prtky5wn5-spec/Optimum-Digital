@@ -1,0 +1,9 @@
+{
+  "name": "Optimum CRM",
+  "short_name": "Optimum CRM",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f5",
+  "theme_color": "#173d35",
+  "description": "Kişisel satış ve müşteri takip uygulaması"
+}
